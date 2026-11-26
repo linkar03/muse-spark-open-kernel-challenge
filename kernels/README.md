@@ -14,9 +14,9 @@ Five single-GPU problems, each a piece of the Muse Spark Open forward pass, time
 
 Speedups are over SGLang's kernel, as the judge reports them. Ranks were read from the final public boards on 2026-11-26.
 
-**How to read the columns.** Until the evening of Nov 2 the project ran its own kernel lines (494 judged runs). At 22:07 UTC that day it rebased every problem onto the public Apache-2.0 code of team keell0renz (commit `890809c`), which itself builds on vjeux, alygg77 and others, because that code was 4 to 15 % faster on every problem. The board entries are that base plus this project's changes. They carry the original attribution and are not redistributed here.
+**How to read the columns.** Until the evening of Nov 2 the project ran its own kernel lines (494 judged runs). At 22:07 UTC that day it rebased every problem onto the public Apache-2.0 code of team keell0renz (commit `890809c`), which itself builds on vjeux, alygg77 and others, because that code was 4 to 15% faster on every problem. The board entries are that base plus this project's changes. They carry the original attribution and are not redistributed here.
 
-**Most of each board score belongs to the public code.** Measured against the first run on that base, this project's changes are worth +1.9 % on the MoE and +0.3 % on the decode layer, and they cost 1.2 %, 0.7 % and 5.6 % on attention, BF16 projections and the prefill layer. This project's own contribution to the kernel track is the left column, the experiments below and the measurements.
+**Most of each board score belongs to the public code.** Measured against the first run on that base, this project's changes are worth +1.9% on the MoE and +0.3% on the decode layer, and they cost 1.2%, 0.7% and 5.6% on attention, BF16 projections and the prefill layer. This project's own contribution to the kernel track is the left column, the experiments below and the measurements.
 
 On three problems the board entry is below the first run on the public base. That is not noise: see [Rules read too strictly](#rules-read-too-strictly).
 
@@ -37,17 +37,17 @@ Best judged speedup at the end of each day, over every recorded run.
 
 ## The limit model
 
-Each component had a lower bound derived from the hardware (weight bytes that must cross the memory bus, tensor-core cycles, launch costs) and a measured best time. On Nov 2 the project's kernels reached this share of their own floor (time at the floor divided by measured time): decode layer 52 %, MoE 48 %, attention 34 %, BF16 projections 75 %, prefill layer 55 %. The top decode entry on the board stood at about 64 % by the same model.
+Each component had a lower bound derived from the hardware (weight bytes that must cross the memory bus, tensor-core cycles, launch costs) and a measured best time. On Nov 2 the project's kernels reached this share of their own floor (time at the floor divided by measured time): decode layer 52%, MoE 48%, attention 34%, BF16 projections 75%, prefill layer 55%. The top decode entry on the board stood at about 64% by the same model.
 
 ## What did not work
 
 **MoE (4-bit expert GEMMs)**
 
-- **Prefetching weights into L2:** 3 to 13 % slower.
-- **Three designs taken from the public base's notes** (fused slice, a second warpgroup-specialized layout, a publisher variant): 5 to 20 % slower.
-- **Per-chunk weight copies:** neutral within ±2 %. The bound was memory bandwidth per SM; the variants were never re-measured with that bound removed.
-- **Register rebalancing between producer and consumers:** about +1 % per shape, and already at the ceiling for that thread geometry.
-- **Four redesigns on the last day:** a 384-thread skinny path lost on all three shapes (with two warps per SM sub-partition the tensor-core latency is no longer hidden); a dual-tile stage was closed on a modelled +0.31 % without a check; a ping-pong weight ring lost at its first check; a scheduler change was closed after one check.
+- **Prefetching weights into L2:** 3 to 13% slower.
+- **Three designs taken from the public base's notes** (fused slice, a second warpgroup-specialized layout, a publisher variant): 5 to 20% slower.
+- **Per-chunk weight copies:** neutral within ±2%. The bound was memory bandwidth per SM; the variants were never re-measured with that bound removed.
+- **Register rebalancing between producer and consumers:** about +1% per shape, and already at the ceiling for that thread geometry.
+- **Four redesigns on the last day:** a 384-thread skinny path lost on all three shapes (with two warps per SM sub-partition the tensor-core latency is no longer hidden); a dual-tile stage was closed on a modelled +0.31% without a check; a ping-pong weight ring lost at its first check; a scheduler change was closed after one check.
 - **Never tried:** a different warpgroup geometry. Every variant treated the base's 640 threads and four consumer warpgroups as fixed.
 
 **Decode layer**
@@ -62,30 +62,30 @@ Each component had a lower bound derived from the hardware (weight bytes that mu
 
 **BF16 projections**
 
-- **Compressing BF16 weights below 12 bits:** an 11.3-bit codec is worth at most about 2.5 % in bytes, and variable-length decoding costs more than that.
+- **Compressing BF16 weights below 12 bits:** an 11.3-bit codec is worth at most about 2.5% in bytes, and variable-length decoding costs more than that.
 
 **Prefill layer**
 
-- **Mixing a polynomial `exp` with the hardware one.** In a microbenchmark a 3:1 mix raised throughput by 8.5 % (16.7 against 15.4 elements per clock per SM). Inside the attention kernel, moving 25 % of the exponentials to the polynomial made it 13 to 15 % slower.
-- **An own FP8 attention kernel:** on par with FlashAttention-3, 1.3 to 2.5 % behind depending on shape.
+- **Mixing a polynomial `exp` with the hardware one.** In a microbenchmark a 3:1 mix raised throughput by 8.5% (16.7 against 15.4 elements per clock per SM). Inside the attention kernel, moving 25% of the exponentials to the polynomial made it 13 to 15% slower.
+- **An own FP8 attention kernel:** on par with FlashAttention-3, 1.3 to 2.5% behind depending on shape.
 
 ## Method errors
 
 These cost more than any single failed idea.
 
-- **The judge was the development bench.** Twenty checks a day per problem, with about 1.5 % noise between nodes, which is larger than many of the changes being tested.
+- **The judge was the development bench.** Twenty checks a day per problem, with about 1.5% noise between nodes, which is larger than many of the changes being tested.
 - **Until Nov 1 the diagnostic builds flushed L2 by writing instead of reading.** On small kernels that inflated differences by up to a factor of two.
 - **Instrumented builds used 149 registers against 128** and distorted the timelines they were meant to explain.
-- **Some decisions rested on single profiles (±35 %), truncated logs or unpaired A/B runs.**
+- **Some decisions rested on single profiles (±35%), truncated logs or unpaired A/B runs.**
 - **Lines of work were closed after a fixed number of checks**, not when the model said the ceiling was reached. Redesigns were stopped before they matured.
-- **During the track the rented H200 was never calibrated against the judge.** The sign of a change always transferred; its size ranged from 0.5 to 1.3 times the judge's. A calibration attempted after the track failed, with timings off by -4.5 % to +8.5 %.
+- **During the track the rented H200 was never calibrated against the judge.** The sign of a change always transferred; its size ranged from 0.5 to 1.3 times the judge's. A calibration attempted after the track failed, with timings off by -4.5% to +8.5%.
 
 ## Rules read too strictly
 
 On Nov 3 the organizers clarified that approximate math accurate to BF16 precision, FP16 accumulation of attention scores, and BF16 or FP16 partial sums were all allowed. This project's internal rules forbade every one of them, some by its own decision of Nov 2, and the update was not read before the track closed on Nov 5.
 
-- **BF16 projections:** removing the public base's BF16 split-K reductions cost 3.6 % of the score at once (1.581 → 1.524; 35 % on one cell, 25 % on another). Later work recovered most of it: the board entry is 1.570.
-- **Attention decode:** replacing the base's FP16 score kernels with FP32 paths cost 6.9 % on one cell. The structural consequence was never tried either: FP16 accumulators halve the accumulator registers, which was exactly the resource that tied the geometries.
+- **BF16 projections:** removing the public base's BF16 split-K reductions cost 3.6% of the score at once (1.581 → 1.524; 35% on one cell, 25% on another). Later work recovered most of it: the board entry is 1.570.
+- **Attention decode:** replacing the base's FP16 score kernels with FP32 paths cost 6.9% on one cell. The structural consequence was never tried either: FP16 accumulators halve the accumulator registers, which was exactly the resource that tied the geometries.
 - **Prefill layer:** the base's FP16 attention path was replaced with FP32 accumulators. The unchanged base measured 1.903 in its first check; the board entry scored 1.797.
 - **Other constraints were self-imposed, not rules:** fixed summation order and bit-identity until Nov 1; identical machine code and zero register spills used as design constraints rather than checks.
 
@@ -98,7 +98,7 @@ For the serving track the MoE kernel was rebuilt inside SGLang's tree, with stoc
 - **On the kernel board's own metric it scores 2.14**, against 2.41 for the board entry, 2.84 for the leader and 2.93 for the floor model.
 - **It takes 1.81, 1.34, 1.22, 1.20, 1.19 and 1.17 times as long** as the public kernel at 1, 8, 16, 32, 128 and 256 tokens.
 - **The weight stream and the decode are equal.** The difference is the consumer: theirs costs as much as decoding alone (7.17 µs per work item at 8 columns), this one 1.9 µs more (9.07). Their kernel runs at the pace of the stream (8.51 µs per item); this one at 9.9.
-- **Three short routes to close the gap failed:** fixed launch costs (11 to 21 % slower), per-warp multiplies in place of narrow `wgmma` (about 1 % reachable), and a balanced work queue (slower, 2.075 against 2.14). Closing it needs a rewrite of the consumer's row layout, which was not done.
+- **Three short routes to close the gap failed:** fixed launch costs (11 to 21% slower), per-warp multiplies in place of narrow `wgmma` (about 1% reachable), and a balanced work queue (slower, 2.075 against 2.14). Closing it needs a rewrite of the consumer's row layout, which was not done.
 
 The MoE work alone accounts for 41 experiment cards: 20 confirmed, 19 falsified, 2 never run.
 

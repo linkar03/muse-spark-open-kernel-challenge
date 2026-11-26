@@ -46,7 +46,7 @@ Stock SGLang runs the model's routed 4-bit experts on H100/H200 through the gene
 - **KV write-back.** With the hierarchical cache on, staged KV pages were copied back one call per page. Staging pages are packed, so pages with consecutive host indices form one contiguous span on both sides; one copy per span replaces one call per page. A check run with only this change measured 27,171 tokens/s per GPU at 32 users against 21,570 before.
 - **Prompt-prefix reuse.** A multi-turn chat renders the whole conversation again on every turn. The encoder keeps the ids of recent prompts and encodes only the text after the shared prefix, cutting at added-token boundaries. Its own check showed no measurable gain on the judge (later-turn time to first token 0.163 s against 0.160 s). It is correct and harmless, and it is the part of the final patch that earned nothing measured.
 
-**Outcome.** 2.159, the largest single step. At 32 users the write-back change accounts for it: the check with only that change (27,171 tokens/s per GPU) is within 0.4 % of the scored run (27,270), inside the ±0.66 % noise seen between runs at that load. At the other loads the two changes were not measured separately.
+**Outcome.** 2.159, the largest single step. At 32 users the write-back change accounts for it: the check with only that change (27,171 tokens/s per GPU) is within 0.4% of the scored run (27,270), inside the ±0.66% noise seen between runs at that load. At the other loads the two changes were not measured separately.
 
 ## 4. KV pool ratio (flag only)
 
@@ -68,7 +68,7 @@ In the split prefill, the all-gather before a GEMM and the reduce-scatter after 
 
 In unsharded forwards of 1 to 768 tokens (the decode and verify steps), every GPU computed the same 4096- and 8192-wide projections. They are now split by columns across the GPUs and exchanged through the SM90+ multicast push plane, removing replicated work from each decode step. The server logs one static line at startup stating whether the path is on.
 
-**Outcome.** 2.365 against a forecast of 2.375. Raw throughput at 16 users rose 2.7 % with 1.0 % spread between repetitions; the ratio to stock at that load rose 1.0 %.
+**Outcome.** 2.365 against a forecast of 2.375. Raw throughput at 16 users rose 2.7% with 1.0% spread between repetitions; the ratio to stock at that load rose 1.0%.
 
 ## 7. Draft context projection per rank
 
@@ -76,7 +76,7 @@ In unsharded forwards of 1 to 768 tokens (the decode and verify steps), every GP
 
 Under the split prefill, each rank applies the draft model's context projection (a linear layer and its norm, row-wise) to its own rows of the captured target hidden states before the gather. The gather then moves the draft's hidden size instead of every captured layer, and the projection is not repeated on every GPU. New option `speculative_dflash_split_context_projection`, on by default.
 
-**Outcome.** 2.437 against a forecast of 2.384. An isolated check at 32 users had shown +0.50 % throughput, inside the ±0.66 % noise, and 2.8 s less first-token wait, so the forecast was modest. The scored run came in above its interval and the second sample (2.432) agrees with it. Peak GPU memory came in 2.0 GB under stock, against +0.1 GB for run 6, although the two runs report identical memory at startup. The difference is in peak use during the run; its cause was not isolated.
+**Outcome.** 2.437 against a forecast of 2.384. An isolated check at 32 users had shown +0.50% throughput, inside the ±0.66% noise, and 2.8 s less first-token wait, so the forecast was modest. The scored run came in above its interval and the second sample (2.432) agrees with it. Peak GPU memory came in 2.0 GB under stock, against +0.1 GB for run 6, although the two runs report identical memory at startup. The difference is in peak use during the run; its cause was not isolated.
 
 ## 8. Final
 

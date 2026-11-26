@@ -4,7 +4,7 @@ Serving an 816B-parameter NVFP4 mixture-of-experts model on 8×H200, measured ag
 
 **Result.** The final SGLang patch reaches **2.437×** stock SGLang's throughput at stock's interactivity (geometric mean over 1, 4, 16 and 32 concurrent users), with outputs that pass the judge's agreement gates and 2.0 GB less GPU memory per GPU than stock. A second sample of the same code scored 2.432×.
 
-**What this repository is.** A mid-table entry written up as an engineering record, not a winning one. It holds the patches exactly as the judge ran them, the judge's receipts for every scored and check run, and the experiments that failed with the reason each one failed. The serving leaderboard was still private when this was written (2026-11-26), so the final rank is unknown, and all positions are provisional until the organizers finish their review.
+**What this repository is.** An engineering record, not a victory lap. It holds the patches exactly as the judge ran them, the judge's receipts for every scored and check run, and the experiments that failed with the reason each one failed. The serving leaderboard was still private when this was written (2026-11-26), so the final rank is unknown, and all positions are provisional until the organizers finish their review.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/score_by_run_dark.svg">
@@ -28,13 +28,14 @@ Serving an 816B-parameter NVFP4 mixture-of-experts model on 8×H200, measured ag
 5. [Kernel track](#5-kernel-track)
 6. [Method](#6-method)
 7. [What I would do differently](#7-what-i-would-do-differently)
-8. [Provenance and credits](#provenance-and-credits)
+
+Also: [How this was built](#how-this-was-built), [Provenance and credits](#provenance-and-credits), [Limitations](#limitations).
 
 ## 1. Baseline
 
 **System under test.** SGLang v0.5.23 (commit [`297e54fd`](https://github.com/sgl-project/sglang/commit/297e54fd105e974cdf401e5b4d20253a22c16f90)) serving `Muse-Spark-Open-816B-A42B-NVFP4` on one node with 8 H200 GPUs: tensor and expert parallelism of 8, speculative decoding with the DFlash draft model (8 draft tokens per step), FP8 KV cache, hierarchical KV cache on, 16,384-token prefill chunks.
 
-**Workload** (as the judge reports it). Multi-turn conversations of 13 turns. The first turn carries 74,160 prompt tokens; each later turn adds 753 new tokens; each turn generates about 220 tokens. 92 % of prompt tokens hit the prefix cache. The same conversations are replayed at 1, 4, 16 and 32 concurrent users.
+**Workload** (as the judge reports it). Multi-turn conversations of 13 turns. The first turn carries 74,160 prompt tokens; each later turn adds 753 new tokens; each turn generates about 220 tokens. 92% of prompt tokens hit the prefix cache. The same conversations are replayed at 1, 4, 16 and 32 concurrent users.
 
 **Metric.** At each load the judge measures stock's per-user speed, reads the patched server's throughput at that same per-user speed off its measured throughput/interactivity frontier, and divides by stock's throughput. The score is the geometric mean of the four ratios, so stock scores 1.00. Stock and the patch run on the same node in the same job.
 
@@ -47,7 +48,7 @@ Serving an 816B-parameter NVFP4 mixture-of-experts model on 8×H200, measured ag
 | 16 | 12,408 | 17.5 |
 | 32 | 12,758 | 9.0 |
 
-Across the eight scored runs stock's throughput moved by at most 2.6 % at any load (for example 6,440 to 6,512 tokens/s per GPU at 1 user). Stock's memory per GPU: 69.85 GB of weights, 37.6 GB of KV cache holding 1,889,034 tokens, 15.8 GB of prefill CUDA graphs.
+Across the eight scored runs stock's throughput moved by at most 2.6% at any load (for example 6,440 to 6,512 tokens/s per GPU at 1 user). Stock's memory per GPU: 69.85 GB of weights, 37.6 GB of KV cache holding 1,889,034 tokens, 15.8 GB of prefill CUDA graphs.
 
 The judge does not report GPU utilization, and it reports stock's time to first token only as a limit (a patch may not exceed twice stock's), so neither appears here as a baseline number.
 
@@ -67,13 +68,13 @@ The analysis below was done on the second scored run (score 1.700) and drove eve
 **Bottom-up attribution.** Each line of work was then priced from separate measurements: single-GPU layer benchmarks, a 4-GPU bench for the collectives, a one-GPU bench for the draft model.
 
 - **At 1 user the account closes.** The measured decode step (14.4 ms) is 11.0 to 13.3 ms of target-model layers, 1.2 to 1.4 ms of draft-model forward and 0.2 ms of draft KV commit.
-- **From 4 users up it does not.** Between 1.1 and 2.6 s per conversation, 13 to 44 % of the total, had no source in the GPU layers.
+- **From 4 users up it does not.** Between 1.1 and 2.6 s per conversation, 13 to 44% of the total, had no source in the GPU layers.
 - **Ruled out by measurement:** a per-request cost in the speculative-decoding runtime (three causal hypotheses, each under 0.15 ms), the draft model's attention, CPU scheduling of the step, and the all-reduces as pure transfer.
 
 **What the unattributed time turned out to be:**
 
 - **KV write-back on the CPU.** With the hierarchical cache on, the scheduler spent about 20 µs of CPU per prefilled token copying KV pages one call at a time. Copying each contiguous span in one call (a 15-line change) raised throughput at 32 users from 21,570 to 27,171 tokens/s per GPU, measured in isolation by a check run.
-- **KV evictions at 32 users.** The sliding-window layers were given 80 % of the full-attention pool although they hold far fewer tokens, so only 23 of 32 conversations stayed resident and evicted ones were re-prefilled on every turn. One launch flag (`--swa-full-tokens-ratio 0.3`) raised capacity from 1.98 to 3.12 million tokens and cut later-turn time to first token at 32 users from 1.69 s to 0.57 s.
+- **KV evictions at 32 users.** The sliding-window layers were given 80% of the full-attention pool although they hold far fewer tokens, so only 23 of 32 conversations stayed resident and evicted ones were re-prefilled on every turn. One launch flag (`--swa-full-tokens-ratio 0.3`) raised capacity from 1.98 million tokens (run 3) to 3.12 million (run 4) and cut later-turn time to first token at 32 users from 1.69 s to 0.57 s.
 - **The first-turn wave.** A 74,160-token first turn takes about 2.1 s of prefill and first turns are served one after another, so at 32 users the 90th-percentile first-token wait is 68 s. This is the largest remaining cost and the one this project did not solve (see section 7).
 
 **Inside the expert kernel.** The model's routed experts use 4-bit NVFP4 weights; stock SGLang runs them on Hopper through the generic Marlin W4A16 path. A profile of an early version of the replacement kernel at 32 tokens (148 µs per call) shows where its time goes: streaming the packed weights from memory alone takes 116.5 µs, the matrix multiplies 16 µs, the epilogue 9 µs, re-streamed activations 4 µs and weight decoding 1 µs. The kernel is a weight-streaming problem, not an arithmetic one, and GPU-scope memory fences issued by threads on a receiving SM stall the stream (2.2 µs with 64 KB in flight, 6.3 µs with 128 KB).
@@ -84,9 +85,9 @@ Each scored run had a numeric forecast and a falsifier written down before it wa
 
 | # | Submitted (UTC) | Change | Forecast | Official score | Reading |
 |---|---|---|---|---|---|
-| 1 | Nov 12 | NVFP4 expert kernel for Hopper in place of Marlin | 1.64 | 1.409 | **Forecast wrong by 14 %.** See the first failure below |
+| 1 | Nov 12 | NVFP4 expert kernel for Hopper in place of Marlin | 1.64 | 1.409 | **Forecast wrong by 14%.** See the first failure below |
 | 2 | Nov 13 | Weight-repack memory fix, sequence-parallel (split) prefill | 1.61 | 1.700 | Confirmed |
-| 3 | Nov 15 | KV write-back by span, prompt-prefix reuse in tokenization | 1.90 | 2.159 | Confirmed, 14 % above the forecast |
+| 3 | Nov 15 | KV write-back by span, prompt-prefix reuse in tokenization | 1.90 | 2.159 | Confirmed, 14% above the forecast |
 | 4 | Nov 16 | KV pool ratio 0.3 (flag only) | 2.23 | 2.239 | Confirmed, all seven predictions inside their intervals |
 | 5 | Nov 17 | Fused collectives in the split prefill | 2.35 | 2.316 | Positive, smaller than forecast |
 | 6 | Nov 18 | Column-split pooler/unpooler projections on decode steps | 2.375 (2.313 to 2.399) | 2.365 | Confirmed |
@@ -97,11 +98,11 @@ Per-patch notes, file lists and hashes are in [serving/README.md](serving/README
 
 ### What did not work
 
-- **The first scored run missed its forecast by 14 %.** Repacking the weights for the new kernel left 59 allocator fragments of 224 MiB per GPU, 12.9 GB in all, counted as weights. The KV cache shrank from 1.89 to 1.23 million tokens, the 16-user rung was excluded for a later-turn time to first token of 0.78 s (limit: twice stock's 0.34 s), and at 32 users it reached 4.34 s. The kernel was fine; the loader was not. Releasing the allocator cache before each layer's repack instead of after it brought the weights back from 82.7 to 69.8 GB. The forecasting simulator was also rebuilt on the judge's real metric and workload.
+- **The first scored run missed its forecast by 14%.** Repacking the weights for the new kernel left 59 allocator fragments of 224 MiB per GPU, 12.9 GB in all, counted as weights. The KV cache shrank from 1.89 to 1.23 million tokens, the 16-user rung was excluded for a later-turn time to first token of 0.78 s (limit: twice stock's 0.34 s), and at 32 users it reached 4.34 s. The kernel was fine; the loader was not. Releasing the allocator cache before each layer's repack instead of after it brought the weights back from 82.7 to 69.8 GB. The forecasting simulator was also rebuilt on the judge's real metric and workload.
 - **Prompt-prefix reuse in tokenization gave nothing measurable.** Forecast: later-turn time to first token from 0.16 s to 0.08 s. Measured: 0.163 s. A later check showed a related change was inert on the judge because the judge does not send text through that path. The code is correct and still ships in the final patch, where about 220 lines buy nothing that was measured.
-- **Row-local prefill (keeping per-rank rows instead of replicating work across GPUs) did not transfer from 2 GPUs to 8.** On a 2-GPU bench it saved 48 to 54 ms per prefill chunk. Three official checks at 32 users gave +0.005 %, -0.23 % and +0.63 % against a run-to-run noise of ±0.66 %. The cause at 8 ranks was not identified. Dropped.
+- **Row-local prefill (keeping per-rank rows instead of replicating work across GPUs) did not transfer from 2 GPUs to 8.** On a 2-GPU bench it saved 48 to 54 ms per prefill chunk. Three official checks at 32 users gave +0.005%, -0.23% and +0.63% against a run-to-run noise of ±0.66%. The cause at 8 ranks was not identified. Dropped.
 - **A larger draft block (16 tokens instead of 8) did not raise acceptance.** Accepted tokens per step went from 4.2 to 4.30; the break-even needed 5.3. Dropped.
-- **A rented H200 could not reproduce the kernel judge's absolute timings.** Calibration runs were off by -4.5 % to +8.5 %. Rented GPUs were used only for A/B comparisons on the same machine after that.
+- **A rented H200 could not reproduce the kernel judge's absolute timings.** Calibration runs were off by -4.5% to +8.5%. Rented GPUs were used only for A/B comparisons on the same machine after that.
 - **A tiny-model bench could not compare outputs under staggered load**, because with synthetic weights the outputs depend on batch composition. It stayed in use for functional tests only.
 - **The hunt for a per-request runtime cost found none.** Three causal hypotheses were tested on one GPU and then at 1 and 4 ranks; each explained under 0.15 ms. A planned rewrite of the runtime was not started on that basis.
 - **Fused collectives delivered about two thirds of the forecast gain** (+0.077 against +0.11).
@@ -126,6 +127,8 @@ Kernel-track failures are in [kernels/README.md](kernels/README.md).
 
 Job `19289d345d3c4640`, patch sha256 `c25c4a1e…8c49`, flags `--enable-layernorm-sp --swa-full-tokens-ratio 0.3`.
 
+**Why 31,581 appears twice.** At 32 users the patched server still gives each user 23.0 tokens/s, faster than stock at 16 users (17.5) and at 32 users (9.0). Its frontier has no measured point that slow, so for both loads the judge takes its most loaded measured point, 31,581 tokens/s per GPU.
+
 ### Before and after
 
 | | stock SGLang | best run |
@@ -139,7 +142,7 @@ Job `19289d345d3c4640`, patch sha256 `c25c4a1e…8c49`, flags `--enable-layernor
 | Prefill CUDA graph memory per GPU | 15.8 GB | 14.7 GB |
 | Patch size | | 146.5 KB, 18 files, all under `python/sglang/` |
 
-**Noise.** Two runs of the same code gave 2.437 and 2.432. Raw throughput at 1 user differed by 8 % between them (10,771 and 9,924 tokens/s per GPU), while the ratio to stock, measured on the same node in the same job, differed by 0.05 % at 1 user (2.3325 and 2.3314) and by at most 1.0 % at any load. Raw low-load throughput is not comparable across runs; the ratio is, to about 1 %.
+**Noise.** Two runs of the same code gave 2.437 and 2.432. Raw throughput at 1 user differed by 8% between them (10,771 and 9,924 tokens/s per GPU), while the ratio to stock, measured on the same node in the same job, differed by 0.05% at 1 user (2.3325 and 2.3314) and by at most 1.0% at any load. Raw low-load throughput is not comparable across runs; the ratio is, to about 1%.
 
 All eight runs, per load, are in [serving/results/](serving/results/) as CSV, next to the judge's receipts. The 17 check runs are there too.
 
@@ -187,7 +190,7 @@ Five single-GPU kernel problems, each timed against SGLang's own kernel on an H2
 | BF16 projections | 1.526× | 1.570× | 218 of 1,741 | 1.728× | 1.605× |
 | Prefill layer | 1.757× | 1.797× | 262 of 896 | 2.147× | 1.938× |
 
-**The board entries are public kernels with this project's work on top, and most of their score belongs to the public code.** On Nov 2, after 494 judged runs on its own kernel lines, the project rebased onto the best public Apache-2.0 code (team keell0renz, commit `890809c`), which was 4 to 15 % faster on every problem. Measured against the first run on that base, what this project added on top is worth +1.9 % on the MoE and +0.3 % on the decode layer, and it lost 1.2 %, 0.7 % and 5.6 % on attention, BF16 projections and the prefill layer. The left column is what the project's own kernels reached before the rebase. That column, the failed experiments and the measurements are this project's contribution to the kernel track.
+**The board entries are public kernels with this project's work on top, and most of their score belongs to the public code.** On Nov 2, after 494 judged runs on its own kernel lines, the project rebased onto the best public Apache-2.0 code (team keell0renz, commit `890809c`), which was 4 to 15% faster on every problem. Measured against the first run on that base, what this project added on top is worth +1.9% on the MoE and +0.3% on the decode layer, and it lost 1.2%, 0.7% and 5.6% on attention, BF16 projections and the prefill layer. The left column is what the project's own kernels reached before the rebase. That column, the failed experiments and the measurements are this project's contribution to the kernel track.
 
 The full account, with the failures and two method errors that cost points (a diagnostic build that distorted timings, and precision rules read more strictly than the organizers wrote them), is in [kernels/README.md](kernels/README.md).
 
@@ -196,7 +199,7 @@ The full account, with the failures and two method errors that cost points (a di
 Every experiment was registered before it was measured: a hypothesis, a numeric prediction with an interval, the model the number came from, and a falsifier. The outcome was written afterwards without touching the prediction.
 
 - **128 experiment cards**, 88 closed: 48 confirmed, 34 falsified, 6 inconclusive, not measurable or mixed. The other 40 were planned or still open when the track closed.
-- **556 numeric predictions** on closed cards were compared with a measurement; **381 (69 %)** fell inside their stated interval.
+- **603 numeric predictions** on closed cards were compared with a measurement; **413 (68%)** fell inside their stated interval. The best scored run is among the misses: its score and all four throughputs came in above their intervals.
 - **Negative results end in one of three forms:** demonstrated impossibility, analytically bounded benefit, or hypothesis not yet measured. A lead is not dropped on a model alone.
 - **Every submission was gated.** A script checked the patch hash, the flags, the remaining quota and the frozen forecast before sending. It did not catch everything: one resubmission of an unchanged patch went out, and the judge discarded it as a duplicate.
 
@@ -208,14 +211,20 @@ The delivered score is a stack of incremental changes on stock SGLang's architec
 
 - **Verification, not ideas, was the bottleneck.** The full model ran only on the judge: 8 scored runs and 17 checks in 8 days, with check queues of 44 to 60 hours at the start because the team sat outside the priority tiers. Parallel research produced a 65-entry archive of candidate designs; the measurement budget could test a handful.
 - **The 8-GPU node was never rented.** At 34 to 55 $/hour it needed a decision that was never taken, so no candidate was measured at 8 ranks before spending a judge run on it. Results from 2 ranks did not transfer to 8.
-- **One run a day rewards the small step.** With a forecast and a falsifier required for each run, a near-certain +3 % beat an architecture change that could fail the agreement gates. That is locally correct and globally a hill climb.
+- **One run a day rewards the small step.** With a forecast and a falsifier required for each run, a near-certain +3% beat an architecture change that could fail the agreement gates. That is locally correct and globally a hill climb.
 - **The structural research started on day 4 of 8**, and its first GPU measurements came on day 7.
 
 Next time: build a faithful 8-GPU test rig first and pre-authorize its budget, start the high-risk branch on day one with its own pass/fail date, and ask each branch for a running prototype with a number rather than an analysis.
 
 ## How this was built
 
-One person entered the challenge and ran it through AI coding agents (Claude Code). The human side set the goals and constraints, decided the budget, approved every submission and rental, and reviewed the results. The agents wrote the code, the benchmarks and the analysis, and kept the experiment registry. The numbers in this repository are the judge's; the forecasts and the interpretation are the project's.
+One person entered the challenge and ran it through AI coding agents (Claude Code). The agents wrote the code, the benchmarks and the analysis, and kept the experiment registry. The human side was the control loop around them:
+
+- **Protocol.** Set the experimental rules the agents worked under: a forecast and a falsifier before every measurement, three allowed forms for a negative result, an adversarial review of every conclusion.
+- **Direction.** Organized the agents into parallel lines of work and chose which candidate got each of the scarce judge runs.
+- **Gate.** Approved every submission and every rented GPU hour, and decided what stayed in the patch and what was dropped.
+
+The numbers in this repository are the judge's; the forecasts and the interpretation are the project's.
 
 ## Provenance and credits
 

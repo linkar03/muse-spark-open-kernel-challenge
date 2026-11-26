@@ -18,7 +18,8 @@ Every experiment in this project was written down before it was measured. [regis
 - **128 cards:** 73 serving, 41 MoE kernel, 13 rest-of-layer, 1 bench calibration.
 - **88 closed:** 48 confirmed, 34 falsified, 6 inconclusive, not measurable or mixed.
 - **40 never closed:** planned or still open when the track ended.
-- **556 numeric predictions** on closed cards were compared with a measurement; **381 (69 %)** fell inside their stated interval. The index shows 12 more predicted and measured pairs on cards that were never closed.
+- **603 numeric predictions** on closed cards were compared with a measurement; **413 (68%)** fell inside their stated interval. The index shows 12 more predicted and measured pairs on cards that were never closed.
+- **The best scored run is among the misses.** On its card (SRV-066) the score and all four throughputs came in above their intervals.
 
 ## One card, translated
 
@@ -45,4 +46,6 @@ Columns: id, state, component, type, title, predicted → measured (one pair per
 | scambi fusi | fused collectives |
 | cache gerarchica | hierarchical KV cache |
 
-A row without a measured value shows only the prediction and its interval in square brackets.
+A row without a measured value shows only the prediction and its interval in square brackets. Among the closed cards that is one row, SRV-073: a resubmission the judge discarded as a duplicate, so nothing was measured.
+
+A prediction and its outcome are paired by metric name. Where the outcome's name carries a trailing note, the two are paired by the name before the note.
