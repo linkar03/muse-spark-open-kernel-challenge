@@ -1,0 +1,40 @@
+✓ check run  passed  job 1bf769ed82ee4e6e
+
+  outputs     agree with stock's  over 32 reference turns
+              prefill KL 0.05 (≤ 0.11) · decode KL 0.022 (≤ 0.035)
+              matching prefix 0.14 (≥ 0.05)
+  rescoring   passed  later turns, scored by stock
+              agreement: first turns 0.96 (≥ 0.85) · later turns 0.97 (≥ 0.92)
+  GPU memory  +0.0 GB over stock (limit 2 GB)
+  settings    as stock's  only sizes that follow differ
+              internal_states[0].decode_cuda_graph_memory_gb: 0.334 → 0.153
+              follows
+              internal_states[0].memory_usage.graph.draft_decode: 0.08 → 0.014
+              follows
+              internal_states[0].memory_usage.graph.prefill: 15.791 → 12.809
+              follows
+              internal_states[0].memory_usage.graph.target_verify: 0.254 → 0.139
+              follows
+              internal_states[0].memory_usage.kvcache: 37.636 → 28.036  follows
+              internal_states[0].memory_usage.startup_available: 20.678 → 20.662
+              follows
+              internal_states[0].memory_usage.token_capacity: 1889034 → 1354958
+              follows
+              internal_states[0].memory_usage.token_capacity_swa: 1511227 →
+              1083966  follows
+              internal_states[0].memory_usage.weight: 69.85 → 82.725  follows
+              max_total_num_tokens: 1889034 → 1354958  follows
+  startup log 270 lines, up to the first request (shortened)  okc serve status
+              <nil> --log
+  vs stock    c16  1.442×  throughput at stock's per-user speed, the score's
+              statistic for this rung
+                   same load: throughput 1.44× · per-user speed 1.44×
+                   TTFT p90 first 0.69× · later 0.72×  stock 82.91 s · 0.34 s
+                   stock 12,220 tok/s/GPU · 17.2 tok/s/user
+              indicative only: not a score, and never on the board
+
+CONCURRENCY   TOK/S/GPU   TOK/S/USER   TTFT P90 FIRST · LATER   ACCEPT   CACHE HIT   SPREAD
+───────────────────────────────────────────────────────────────────────────────────────────
+16            17,622      24.8         57.22 s · 0.24 s         3.90     92%         –
+
+next  okc serve submit <patch.diff>  for a scored run

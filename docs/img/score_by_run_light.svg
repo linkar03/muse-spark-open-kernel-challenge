@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 380" width="860" height="380" role="img" aria-label="Official serving score after each of the eight scored runs">
+<rect width="860" height="380" rx="8" fill="#fcfcfb"/>
+<text x="24.0" y="32.0" fill="#0b0b0b" font-size="15" font-weight="600" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Official score after each scored run</text>
+<text x="24.0" y="52.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Throughput at stock SGLang's interactivity, geometric mean over 1, 4, 16 and 32 users. Stock = 1.00.</text>
+<line x1="412.4" y1="72" x2="412.4" y2="334" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="506.8" y1="72" x2="506.8" y2="334" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="601.2" y1="72" x2="601.2" y2="334" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="695.6" y1="72" x2="695.6" y2="334" stroke="#e1e0d9" stroke-width="1"/>
+<line x1="790.0" y1="72" x2="790.0" y2="334" stroke="#e1e0d9" stroke-width="1"/>
+<text x="318.0" y="352.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">0</text>
+<text x="412.4" y="352.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">0.5×</text>
+<text x="506.8" y="352.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">1.0×</text>
+<text x="601.2" y="352.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">1.5×</text>
+<text x="695.6" y="352.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">2.0×</text>
+<text x="790.0" y="352.0" fill="#898781" font-size="11" font-weight="400" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">2.5×</text>
+<line x1="318.0" y1="72" x2="318.0" y2="334" stroke="#c3c2b7" stroke-width="1"/>
+<text x="506.8" y="368.0" fill="#52514e" font-size="11" font-weight="400" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">stock SGLang</text>
+<text x="24.0" y="98.0" fill="#898781" font-size="12" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Nov 12</text>
+<text x="78.0" y="98.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">NVFP4 expert kernel (replaces Marlin)</text>
+<path d="M318.0,85.0 H580.0 Q584.0,85.0 584.0,89.0 V99.0 Q584.0,103.0 580.0,103.0 H318.0 Z" fill="#2a78d6"/>
+<text x="592.0" y="98.0" fill="#0b0b0b" font-size="12" font-weight="600" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">1.409×</text>
+<text x="24.0" y="130.0" fill="#898781" font-size="12" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Nov 13</text>
+<text x="78.0" y="130.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">+ memory fix, split prefill</text>
+<path d="M318.0,117.0 H635.0 Q639.0,117.0 639.0,121.0 V131.0 Q639.0,135.0 635.0,135.0 H318.0 Z" fill="#2a78d6"/>
+<text x="647.0" y="130.0" fill="#0b0b0b" font-size="12" font-weight="600" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">1.700×</text>
+<text x="24.0" y="162.0" fill="#898781" font-size="12" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Nov 15</text>
+<text x="78.0" y="162.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">+ KV write-back by span, prefix reuse</text>
+<path d="M318.0,149.0 H721.5 Q725.5,149.0 725.5,153.0 V163.0 Q725.5,167.0 721.5,167.0 H318.0 Z" fill="#2a78d6"/>
+<text x="733.5" y="162.0" fill="#0b0b0b" font-size="12" font-weight="600" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">2.159×</text>
+<text x="24.0" y="194.0" fill="#898781" font-size="12" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Nov 16</text>
+<text x="78.0" y="194.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">+ KV pool ratio 0.3 (flag only)</text>
+<path d="M318.0,181.0 H736.7 Q740.7,181.0 740.7,185.0 V195.0 Q740.7,199.0 736.7,199.0 H318.0 Z" fill="#2a78d6"/>
+<text x="748.7" y="194.0" fill="#0b0b0b" font-size="12" font-weight="600" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">2.239×</text>
+<text x="24.0" y="226.0" fill="#898781" font-size="12" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Nov 17</text>
+<text x="78.0" y="226.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">+ fused collectives in split prefill</text>
+<path d="M318.0,213.0 H751.2 Q755.2,213.0 755.2,217.0 V227.0 Q755.2,231.0 751.2,231.0 H318.0 Z" fill="#2a78d6"/>
+<text x="763.2" y="226.0" fill="#0b0b0b" font-size="12" font-weight="600" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">2.316×</text>
+<text x="24.0" y="258.0" fill="#898781" font-size="12" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Nov 18</text>
+<text x="78.0" y="258.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">+ column-split pooler/unpooler</text>
+<path d="M318.0,245.0 H760.6 Q764.6,245.0 764.6,249.0 V259.0 Q764.6,263.0 760.6,263.0 H318.0 Z" fill="#2a78d6"/>
+<text x="772.6" y="258.0" fill="#0b0b0b" font-size="12" font-weight="600" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">2.365×</text>
+<text x="24.0" y="290.0" fill="#898781" font-size="12" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Nov 19</text>
+<text x="78.0" y="290.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">+ per-rank draft context projection</text>
+<path d="M318.0,277.0 H774.2 Q778.2,277.0 778.2,281.0 V291.0 Q778.2,295.0 774.2,295.0 H318.0 Z" fill="#2a78d6"/>
+<text x="786.2" y="290.0" fill="#0b0b0b" font-size="12" font-weight="600" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">2.437×</text>
+<text x="24.0" y="322.0" fill="#898781" font-size="12" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Nov 20</text>
+<text x="78.0" y="322.0" fill="#52514e" font-size="12" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">same code, second sample</text>
+<path d="M318.0,309.0 H773.2 Q777.2,309.0 777.2,313.0 V323.0 Q777.2,327.0 773.2,327.0 H318.0 Z" fill="#2a78d6"/>
+<text x="785.2" y="322.0" fill="#0b0b0b" font-size="12" font-weight="600" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">2.432×</text>
+</svg>

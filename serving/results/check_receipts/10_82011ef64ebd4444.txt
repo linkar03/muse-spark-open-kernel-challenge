@@ -1,0 +1,44 @@
+✓ check run  passed  job 82011ef64ebd4444
+
+  flags       --enable-layernorm-sp · --swa-full-tokens-ratio 0.3
+  outputs     agree with stock's  over 32 reference turns
+              prefill KL 0.05 (≤ 0.11) · decode KL 0.026 (≤ 0.035)
+              matching prefix 0.12 (≥ 0.05)
+  rescoring   passed  later turns, scored by stock
+              agreement: first turns 0.97 (≥ 0.85) · later turns 0.97 (≥ 0.92)
+  GPU memory  0.3 GB under stock (limit 2 GB)
+  settings    3 differ from stock's  setting: stock → yours
+              enable_layernorm_sp: false → true  passed flag
+              swa_full_tokens_ratio: 0.8 → 0.3  passed flag
+              _swa_full_tokens_ratio_explicitly_set: false → true  new default
+              internal_states[0].decode_cuda_graph_memory_gb: 0.334 → 0.312
+              follows
+              internal_states[0].memory_usage.graph.draft_decode: 0.08 → 0.078
+              follows
+              internal_states[0].memory_usage.graph.prefill: 15.791 → 14.416
+              follows
+              internal_states[0].memory_usage.graph.target_verify: 0.254 → 0.234
+              follows
+              internal_states[0].memory_usage.kvcache: 37.636 → 33.387  follows
+              internal_states[0].memory_usage.startup_available: 20.678 → 20.734
+              follows
+              internal_states[0].memory_usage.token_capacity: 1889034 → 3098215
+              follows
+              internal_states[0].memory_usage.token_capacity_swa: 1511227 →
+              929464  follows
+              internal_states[0].memory_usage.weight: 69.85 → 70.002  follows
+              max_total_num_tokens: 1889034 → 3098215  follows
+  startup log 268 lines, up to the first request (shortened)  okc serve status
+              <nil> --log
+  vs stock    c16  2.085×  throughput at stock's per-user speed, the score's
+              statistic for this rung
+                   same load: throughput 2.09× · per-user speed 2.11×
+                   TTFT p90 first 0.42× · later 0.74×  stock 84.36 s · 0.35 s
+                   stock 12,291 tok/s/GPU · 17.3 tok/s/user
+              indicative only: not a score, and never on the board
+
+CONCURRENCY   TOK/S/GPU   TOK/S/USER   TTFT P90 FIRST · LATER   ACCEPT   CACHE HIT   SPREAD
+───────────────────────────────────────────────────────────────────────────────────────────
+16            25,625      36.7         35.29 s · 0.26 s         3.90     92%         –
+
+next  okc serve submit <patch.diff>  for a scored run

@@ -1,0 +1,42 @@
+! serving run  passed, 3 of 4 rungs counted  job a79b1b4be2ef44fa
+
+  1.409×  ━━━━━━━━━╋━━━━──────────────  vs stock SGLang
+  ! c16 left off the frontier: later-turn p90 TTFT 0.78s > 2x stock's 0.34s
+  at stock's points: c1 1.488× · c4 1.390× · c16 1.363× (from the other rungs) ·
+  c32 1.399×
+
+  outputs     agree with stock's  over 176 reference turns
+              prefill KL 0.054 (≤ 0.11) · decode KL 0.012 (≤ 0.035)
+              matching prefix 0.14 (≥ 0.05)
+  rescoring   passed  later turns, scored by stock
+              agreement: first turns 0.96 (≥ 0.85) · later turns 0.97 (≥ 0.92)
+  GPU memory  +0.1 GB over stock (limit 2 GB)
+  settings    as stock's  only sizes that follow differ
+              internal_states[0].decode_cuda_graph_memory_gb: 0.334 → 0.157
+              follows
+              internal_states[0].memory_usage.graph.draft_decode: 0.08 → 0.018
+              follows
+              internal_states[0].memory_usage.graph.prefill: 15.791 → 14.631
+              follows
+              internal_states[0].memory_usage.graph.target_verify: 0.254 → 0.139
+              follows
+              internal_states[0].memory_usage.kvcache: 37.636 → 28.033  follows
+              internal_states[0].memory_usage.startup_available: 20.678 → 20.641
+              follows
+              internal_states[0].memory_usage.token_capacity: 1889034 → 1232769
+              follows
+              internal_states[0].memory_usage.token_capacity_swa: 1511227 →
+              986215  follows
+              internal_states[0].memory_usage.weight: 69.85 → 82.723  follows
+              max_total_num_tokens: 1889034 → 1232769  follows
+  startup log 265 lines, up to the first request (shortened)  okc serve status
+              <nil> --log
+
+CONCURRENCY   TOK/S/GPU   TOK/S/USER   TTFT P90 FIRST · LATER   ACCEPT   CACHE HIT   SPREAD
+───────────────────────────────────────────────────────────────────────────────────────────
+1             8,299       182.9        6.37 s · 0.17 s          4.10     92%         5.3%
+4             13,232      75.5         15.05 s · 0.19 s         4.00     92%         2.6%
+16            17,513      24.6         59.49 s · 0.78 s         4.00     92%         0.6%
+32            17,665      12.5         131.57 s · 4.34 s        4.20     92%         –
+
+next  okc serve status  your runs and scores

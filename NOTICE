@@ -1,0 +1,29 @@
+Muse Spark Open Kernel Challenge: engineering post-mortem and SGLang serving patches
+Copyright 2026 linkar03
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This repository includes or derives from the following work.
+
+SGLang (https://github.com/sgl-project/sglang), Apache License 2.0.
+  The files in serving/patches/ are diffs against commit
+  297e54fd105e974cdf401e5b4d20253a22c16f90 and contain SGLang source lines as context.
+  The launch command quoted in README.md is the one published in the challenge rules.
+
+Team keell0renz, muse-open-kernel-challenge, commit 890809c, Apache License 2.0.
+  Copyright 2026 team keell0renz (Bohdan Agarkov).
+  The NVFP4 expert kernel added by the serving patches
+  (python/sglang/kernels/jit/csrc/muse_spark/nvfp4_experts_sm90.cuh) was developed from the
+  public kernel-track MoE code of that repository, which itself builds on vjeux/okc-2026
+  (commit f35a41e) and alygg77/okc-muse-spark-kernels (commit 6cae49a), both Apache License 2.0.
+  "Portions Copyright vjeux, from https://github.com/vjeux/okc-2026 (commit f35a41e),
+  licensed under the Apache License 2.0."
+  "Submitted by alygg77 under the Apache License 2.0 with this notice retained."
+  Their full notice and license are reproduced in third_party/NOTICE.keell0renz_890809c and
+  third_party/LICENSE.keell0renz_890809c.
+  Changes made here: integration into SGLang (kernel registry, weight loading and repacking,
+  per-layer selection, fallback to Marlin), a single weight layout for every size, and rounding
+  that follows SGLang's stock path stage by stage.
+
+The kernel-track board entries described in kernels/README.md were built on the same
+keell0renz code and are not redistributed in this repository.

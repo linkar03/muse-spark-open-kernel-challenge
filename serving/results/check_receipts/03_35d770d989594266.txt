@@ -1,0 +1,44 @@
+✓ check run  passed  job 35d770d989594266
+
+  flags       --enable-layernorm-sp
+  outputs     agree with stock's  over 32 reference turns
+              prefill KL 0.055 (≤ 0.11) · decode KL 0.021 (≤ 0.035)
+              matching prefix 0.13 (≥ 0.05)
+  rescoring   passed  later turns, scored by stock
+              agreement: first turns 0.95 (≥ 0.85) · later turns 0.97 (≥ 0.92)
+  GPU memory  0.1 GB under stock (limit 2 GB)
+  settings    1 differ from stock's  setting: stock → yours
+              enable_layernorm_sp: false → true  passed flag
+              internal_states[0].decode_cuda_graph_memory_gb: 0.334 → 0.153
+              follows
+              internal_states[0].memory_usage.graph.draft_decode: 0.08 → 0.012
+              follows
+              internal_states[0].memory_usage.graph.prefill: 15.791 → 14.408
+              follows
+              internal_states[0].memory_usage.graph.target_verify: 0.254 → 0.141
+              follows
+              internal_states[0].memory_usage.kvcache: 37.636 → 28.033  follows
+              internal_states[0].memory_usage.startup_available: 20.678 → 20.766
+              follows
+              internal_states[0].memory_usage.token_capacity: 1889034 → 1247901
+              follows
+              internal_states[0].memory_usage.token_capacity_swa: 1511227 →
+              998320  follows
+              internal_states[0].memory_usage.weight: 69.85 → 82.723  follows
+              max_total_num_tokens: 1889034 → 1247901  follows
+  startup log 269 lines, up to the first request (shortened)  okc serve status
+              <nil> --log
+  vs stock    c16  1.648×  throughput at stock's per-user speed, the score's
+              statistic for this rung
+                   same load: throughput 1.65× · per-user speed 1.65×
+                   TTFT p90 first 0.56× · later 2.08×  stock 84.11 s · 0.35 s
+                   stock 12,318 tok/s/GPU · 17.4 tok/s/user
+              ! c16 later-turn p90 TTFT is 2.1× stock's 0.35 s, over the 2×
+              limit: a scored run would leave this rung off its frontier
+              indicative only: not a score, and never on the board
+
+CONCURRENCY   TOK/S/GPU   TOK/S/USER   TTFT P90 FIRST · LATER   ACCEPT   CACHE HIT   SPREAD
+───────────────────────────────────────────────────────────────────────────────────────────
+16            20,303      28.7         46.71 s · 0.74 s         4.00     92%         –
+
+next  okc serve submit <patch.diff>  for a scored run

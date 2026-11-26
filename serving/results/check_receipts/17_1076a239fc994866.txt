@@ -1,0 +1,49 @@
+✓ check run  passed  job 1076a239fc994866
+
+  flags       --enable-layernorm-sp · --speculative-num-draft-tokens 16 · --swa-
+              full-tokens-ratio 0.3
+  outputs     agree with stock's  over 24 reference turns
+              prefill KL 0.046 (≤ 0.11) · decode KL 0.0096 (≤ 0.035)
+              matching prefix 0.15 (≥ 0.05)
+  rescoring   passed  later turns, scored by stock
+              agreement: first turns 0.95 (≥ 0.85) · later turns 0.97 (≥ 0.92)
+  GPU memory  2.5 GB under stock (limit 2 GB)
+  users       checked at 1
+  settings    5 differ from stock's  setting: stock → yours
+              enable_layernorm_sp: false → true  passed flag
+              speculative_num_draft_tokens: 8 → 16  passed flag
+              swa_full_tokens_ratio: 0.8 → 0.3  passed flag
+              _swa_full_tokens_ratio_explicitly_set: false → true  new default
+              speculative_dflash_split_context_projection: <absent> → true  new
+              default
+              internal_states[0].decode_cuda_graph_memory_gb: 0.334 → 0.312
+              follows
+              internal_states[0].memory_usage.graph.draft_decode: 0.08 → 0.076
+              follows
+              internal_states[0].memory_usage.graph.prefill: 15.791 → 14.854
+              follows
+              internal_states[0].memory_usage.graph.target_verify: 0.254 → 0.236
+              follows
+              internal_states[0].memory_usage.kvcache: 37.636 → 33.387  follows
+              internal_states[0].memory_usage.startup_available: 20.678 → 20.781
+              follows
+              internal_states[0].memory_usage.token_capacity: 1889034 → 3052110
+              follows
+              internal_states[0].memory_usage.token_capacity_swa: 1511227 →
+              915633  follows
+              internal_states[0].memory_usage.weight: 69.85 → 70.002  follows
+              max_total_num_tokens: 1889034 → 3052110  follows
+  startup log 269 lines, up to the first request (shortened)  okc serve status
+              <nil> --log
+  vs stock    c1  1.531×  throughput at stock's per-user speed, the score's
+              statistic for this rung
+                  same load: throughput 1.52× · per-user speed 1.52×
+                  TTFT p90 first 0.39× · later 0.72×  stock 8.98 s · 0.22 s
+                  stock 6,482 tok/s/GPU · 141.7 tok/s/user
+              indicative only: not a score, and never on the board
+
+CONCURRENCY   TOK/S/GPU   TOK/S/USER   TTFT P90 FIRST · LATER   ACCEPT   CACHE HIT   SPREAD
+───────────────────────────────────────────────────────────────────────────────────────────
+1             9,926       214.5        3.52 s · 0.16 s          4.30     92%         14.9%
+
+next  okc serve submit <patch.diff>  for a scored run

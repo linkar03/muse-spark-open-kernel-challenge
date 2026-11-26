@@ -1,0 +1,46 @@
+✓ serving run  passed  job 19289d345d3c4640
+
+  2.437×  ━━━━━━━━━╋━━━━━━━━━━━───────  vs stock SGLang
+  at stock's points: c1 2.333× · c4 2.402× · c16 2.545× · c32 2.475×
+
+  flags       --enable-layernorm-sp · --swa-full-tokens-ratio 0.3
+  outputs     agree with stock's  over 176 reference turns
+              prefill KL 0.049 (≤ 0.11) · decode KL 0.013 (≤ 0.035)
+              matching prefix 0.14 (≥ 0.05)
+  rescoring   passed  later turns, scored by stock
+              agreement: first turns 0.96 (≥ 0.85) · later turns 0.97 (≥ 0.92)
+  GPU memory  2.0 GB under stock (limit 2 GB)
+  settings    4 differ from stock's  setting: stock → yours
+              enable_layernorm_sp: false → true  passed flag
+              swa_full_tokens_ratio: 0.8 → 0.3  passed flag
+              _swa_full_tokens_ratio_explicitly_set: false → true  new default
+              speculative_dflash_split_context_projection: <absent> → true  new
+              default
+              internal_states[0].decode_cuda_graph_memory_gb: 0.334 → 0.312
+              follows
+              internal_states[0].memory_usage.graph.draft_decode: 0.08 → 0.076
+              follows
+              internal_states[0].memory_usage.graph.prefill: 15.791 → 14.66
+              follows
+              internal_states[0].memory_usage.graph.target_verify: 0.254 → 0.236
+              follows
+              internal_states[0].memory_usage.kvcache: 37.636 → 33.387  follows
+              internal_states[0].memory_usage.startup_available: 20.678 → 20.672
+              follows
+              internal_states[0].memory_usage.token_capacity: 1889034 → 3072281
+              follows
+              internal_states[0].memory_usage.token_capacity_swa: 1511227 →
+              921684  follows
+              internal_states[0].memory_usage.weight: 69.85 → 70.002  follows
+              max_total_num_tokens: 1889034 → 3072281  follows
+  startup log 268 lines, up to the first request (shortened)  okc serve status
+              <nil> --log
+
+CONCURRENCY   TOK/S/GPU   TOK/S/USER   TTFT P90 FIRST · LATER   ACCEPT   CACHE HIT   SPREAD
+───────────────────────────────────────────────────────────────────────────────────────────
+1             10,771      232.7        3.50 s · 0.16 s          4.20     92%         9.5%
+4             18,741      106.8        7.89 s · 0.18 s          3.90     92%         4.0%
+16            27,463      39.2         31.22 s · 0.24 s         4.00     92%         2.5%
+32            31,581      23.0         68.09 s · 0.57 s         4.20     92%         –
+
+next  okc serve status  your runs and scores
